@@ -11,7 +11,7 @@ import 'package:provider/provider.dart';
 
 import 'controller/ai/image/ai_image_controller.dart';
 import 'controller/pd_data/food_controller.dart';
-import 'screen/sample_my_app1.dart';
+import 'screen/sample_my_app1.dart' as sampleApp;
 
 void main() {
   // runApp( MySplash() ); // runApp
