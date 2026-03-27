@@ -1,5 +1,0 @@
-commit 90b6b66b8bb736b8ec18f016a8fdc23f42fb4ed4
-Author: lsy3709 <lsy3709@naver.com>
-Date:   Fri Mar 27 09:54:39 2026 +0900
-
-    프론트엔드: Phase 3-4 도서, 마이페이지, 공지, 예약, 렌탈, 문의 등 11개 앱 Screen 위젯 신규 생성 및 CHECKLIST 진행 상황 반영
