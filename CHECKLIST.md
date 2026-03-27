@@ -155,11 +155,11 @@
 
 ## Phase 4: Flask AI 서버 정리 (Flask-Back)
 
-- [ ] app.py 엔드포인트 정리 및 주석 추가
-- [ ] config.py 설정 정리
-- [ ] CORS 설정 확인
-- [ ] /predict/tool, /predict/animal, /predict/appliance 엔드포인트 확인
-- [ ] requirements.txt 정리
+- [x] app.py 엔드포인트 정리 및 주석 추가 (작업: config 파일 임포트화 및 `/predict/<model_type>` 주석 추가 완료)
+- [x] config.py 설정 정리 (작업: BASE_DIR 활용, animal/appliance/tool 딕셔너리 명칭 변경, 하드코딩 제거 완료)
+- [x] CORS 설정 확인 (작업: `CORS(app)` 전역 적용 확인 및 주석 추가 완료)
+- [x] /predict/tool, /predict/animal, /predict/appliance 엔드포인트 확인 (작업: config.py의 VISION_MODEL_CONFIGS 변경으로 파라미터 매핑 통합 완료)
+- [x] requirements.txt 정리 (작업: 미사용 FastAPI 종속성 제거 및 pandas, waitress 등 필수 패키지명 기입 완료)
 
 ---
 
@@ -181,8 +181,9 @@
 | 2026-03-27 | 2차 | Phase 3-2 | 8개 주요 Model 클래스 (member, book 등) 작성 및 단위(model)테스트 통과 |
 | 2026-03-27 | 2차 | Phase 3-3 | 6개 신규 Controller 클래스 생성 완료 (Provider 상태 관리 및 한글 비동기 주석 추가) |
 | 2026-03-27 | 2차 | Phase 3-4 | 도서, 로그인, 렌탈, 예약, 마이페이지 등 총 11개의 Screen UI 컴포넌트 개발 및 기능 주석 문서화 완료 |
+| 2026-03-27 | 2차 | Phase 4 | Flask-Back 서버 내 config.py 모델 분리 정리, app.py 코드 개선, 미사용 라이브러리 정리 및 한글 커밋 |
 | 2026-03-27 | 2차 | Phase 5 | 통합 README.md 파일 최상위 구성 완료 및 원격 저장소(GitHub) 커밋/푸시 연동 |
-| | | | **다음 작업: Phase 4. Flask AI 서버 정리** |
+| | | | **다음 작업: 개발 완료 및 최종 테스트 진행** |
 
 ---
 

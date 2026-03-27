@@ -19,17 +19,20 @@ from ultralytics import YOLO
 import numpy as np
 import pandas as pd
 
+import config  # 설정 파일 임포트
+
 # ==============================================================================
 # 1. Flask 앱 및 기본 설정
 # ==============================================================================
 app = Flask(__name__)
+# CORS 활성화: 모바일 기기(Flutter) 및 외부 백엔드(Spring Boot) 연동 허용
 CORS(app)
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = config.DEVICE
 print(f"✅ Using device: {device}")
 
-UPLOAD_FOLDER = 'uploads'
-RESULT_FOLDER = 'results'
+UPLOAD_FOLDER = config.UPLOAD_FOLDER
+RESULT_FOLDER = config.RESULT_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 os.makedirs(RESULT_FOLDER, exist_ok=True)
 
@@ -80,19 +83,12 @@ class GRUModel(nn.Module):
 # ==============================================================================
 
 # --- 이미지 분류 모델 설정 (요청 시 로드) ---
-MODEL_CONFIGS = {
-    "team1": {"model_path": "./resnet50_best_team1_animal.pth", "num_classes": 5,
-              "class_labels": ["고양이", "공룡", "강아지", "꼬북이", "티벳여우"]},
-    "team2": {"model_path": "./resnet50_best_team2_recycle.pth", "num_classes": 13,
-              "class_labels": ["영업용_냉장고", "컴퓨터_cpu", "드럼_세탁기", "냉장고", "컴퓨터_그래픽카드", "메인보드", "전자레인지", "컴퓨터_파워", "컴퓨터_램",
-                               "스탠드_에어컨", "TV", "벽걸이_에어컨", "통돌이_세탁기"]},
-    "team3": {"model_path": "./resnet50_best_team3_tools_accuracy_90.pth", "num_classes": 10,
-              "class_labels": ["공구 톱", "공업용가위", "그라인더", "니퍼", "드라이버", "망치", "스패너", "전동드릴", "줄자", "캘리퍼스"]},
-}
+# 설정된 config.py 파일의 통합 구조 호출
+MODEL_CONFIGS = config.VISION_MODEL_CONFIGS
 
 # --- YOLO 모델 로드 (시작 시 로드) ---
 try:
-    yolo_model = YOLO("best-busanit501-aqua.pt")
+    yolo_model = YOLO(config.YOLO_MODEL_PATH)
     print("✅ YOLO model loaded successfully.")
 except Exception as e:
     print(f"🔴 ERROR loading YOLO model: {e}")
@@ -104,19 +100,19 @@ stock_scalers = {}
 
 try:
     stock_models['RNN'] = StockPredictorRNN().to(device)
-    stock_models['RNN'].load_state_dict(torch.load('Rnn-samsungStock.pth', map_location=device))
+    stock_models['RNN'].load_state_dict(torch.load(config.STOCK_MODEL_PATHS['RNN']['model'], map_location=device))
     stock_models['RNN'].eval()
-    stock_scalers['RNN'] = torch.load('Rnn-scaler.pth', map_location=device)
+    stock_scalers['RNN'] = torch.load(config.STOCK_MODEL_PATHS['RNN']['scaler'], map_location=device)
 
     stock_models['LSTM'] = LSTMModel().to(device)
-    stock_models['LSTM'].load_state_dict(torch.load('samsungStock_LSTM_60days_basic.pth', map_location=device))
+    stock_models['LSTM'].load_state_dict(torch.load(config.STOCK_MODEL_PATHS['LSTM']['model'], map_location=device))
     stock_models['LSTM'].eval()
-    stock_scalers['LSTM'] = torch.load('scaler_LSTM_60days_basic.pth', map_location=device)
+    stock_scalers['LSTM'] = torch.load(config.STOCK_MODEL_PATHS['LSTM']['scaler'], map_location=device)
 
     stock_models['GRU'] = GRUModel().to(device)
-    stock_models['GRU'].load_state_dict(torch.load('samsungStock_GRU.pth', map_location=device))
+    stock_models['GRU'].load_state_dict(torch.load(config.STOCK_MODEL_PATHS['GRU']['model'], map_location=device))
     stock_models['GRU'].eval()
-    stock_scalers['GRU'] = torch.load('scaler_GRU.pth', map_location=device)
+    stock_scalers['GRU'] = torch.load(config.STOCK_MODEL_PATHS['GRU']['scaler'], map_location=device)
     print("✅ Stock prediction models and scalers loaded successfully.")
 except FileNotFoundError as e:
     print(f"🔴 ERROR: Stock model or scaler file not found: {e.filename}")
@@ -124,11 +120,11 @@ except Exception as e:
     print(f"🔴 ERROR loading stock models: {e}")
 
 try:
-    stock_df = pd.read_csv('7-samsung_stock_2022_01_2025_10_13.csv', index_col='Date', parse_dates=True)
+    stock_df = pd.read_csv(config.STOCK_CSV_PATH, index_col='Date', parse_dates=True)
     stock_df.sort_index(inplace=True)
     print("✅ Stock data CSV loaded successfully.")
 except FileNotFoundError:
-    print("🔴 ERROR: '7-samsung_stock_2022_01_2025_10_13.csv' not found.")
+    print("🔴 ERROR: Stock data CSV not found.")
     stock_df = None
 
 
@@ -222,7 +218,8 @@ def index():
     return render_template('index.html')
 
 
-# --- 이미지/YOLO 처리 API ---
+# --- 프론트엔드 연동용 호환 AI 분류 처리 엔드포인트 ---
+# Flutter 앱 및 Spring 백엔드에서 '/predict/animal', '/predict/tool', '/predict/appliance' 형태로 요청 시 처리.
 @app.route("/predict/<model_type>", methods=["POST"])
 def predict(model_type):
     if "image" not in request.files:

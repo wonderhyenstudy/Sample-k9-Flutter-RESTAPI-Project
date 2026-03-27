@@ -1,0 +1,1 @@
+백엔드: Phase 4 Flask AI 서버 app.py 리팩토링 및 환경 설정(config.py, requirements.txt) 최적화 개선
