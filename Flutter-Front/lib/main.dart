@@ -11,6 +11,12 @@ import 'package:provider/provider.dart';
 
 import 'controller/ai/image/ai_image_controller.dart';
 import 'controller/pd_data/food_controller.dart';
+import 'controller/book_controller.dart';
+import 'controller/rental_controller.dart';
+import 'controller/notice_controller.dart';
+import 'controller/event_controller.dart';
+import 'controller/inquiry_controller.dart';
+import 'controller/reserve_controller.dart';
 import 'screen/sample_my_app1.dart' as sampleApp;
 
 void main() {
@@ -23,7 +29,14 @@ void main() {
           ChangeNotifierProvider(create: (context) => LoginController()),
           ChangeNotifierProvider(create: (context) => SignupController()),
           ChangeNotifierProvider(create: (context) => TodoController()),
-          ChangeNotifierProvider(create: (context) => AiImageController()), // Todos 컨트롤러 추가
+          ChangeNotifierProvider(create: (context) => AiImageController()),
+          // 도서관 관련 컨트롤러
+          ChangeNotifierProvider(create: (context) => BookController()),
+          ChangeNotifierProvider(create: (context) => RentalController()),
+          ChangeNotifierProvider(create: (context) => NoticeController()),
+          ChangeNotifierProvider(create: (context) => EventController()),
+          ChangeNotifierProvider(create: (context) => InquiryController()),
+          ChangeNotifierProvider(create: (context) => ReserveController()),
         ],
         child: const MyApp(),
       )

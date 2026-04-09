@@ -14,9 +14,8 @@ class _RentalListScreenState extends State<RentalListScreen> {
   @override
   void initState() {
     super.initState();
-    // 데이터 페칭 (회원 ID 1 샘플)
     Future.microtask(() {
-      Provider.of<RentalController>(context, listen: false).fetchMemberRentals(1);
+      Provider.of<RentalController>(context, listen: false).fetchMemberRentals();
     });
   }
 

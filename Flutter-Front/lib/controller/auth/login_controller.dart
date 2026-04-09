@@ -16,7 +16,7 @@ class LoginController extends ChangeNotifier {
   // 주의사항, 각자 아이피를 사용해야합니다. 그대로 사용하면 안됩니다.
   // localhost 로 하면 안됩니다.
   // 만약, 에뮬레이터로 진행을 하면, : 10.0.2.2 로 변경해서 진행해보기.
-  final String serverIp = "http://10.100.201.87:8080"; // 서버 주소 변경 필요
+  final String serverIp = "http://10.0.2.2:8080"; // 서버 주소 변경 필요
   bool isLoading = false; // 로그인 로딩 상태
   bool isLoggedIn = false; // 로그인 여부
 
@@ -57,30 +57,43 @@ class LoginController extends ChangeNotifier {
         await secureStorage.write(key: "accessToken", value: accessToken);
         await secureStorage.write(key: "refreshToken", value: refreshToken);
         await secureStorage.write(key: "profileImg", value: profileImg);
-        await secureStorage.write(key: "mid", value: inputId); // 로그인한 ID 저장
+        await secureStorage.write(key: "mid", value: inputId);
 
-        // 입력란 초기화
+        // 도서관 회원 numeric ID 조회 후 저장
+        try {
+          final memberRes = await http.get(
+            Uri.parse("$serverIp/api/member/me?mid=$inputId"),
+            headers: {"Authorization": "Bearer $accessToken"},
+          );
+          if (memberRes.statusCode == 200) {
+            final memberData = jsonDecode(memberRes.body);
+            await secureStorage.write(
+                key: "memberId", value: memberData["id"].toString());
+          }
+        } catch (_) {}
+
         clearInputFields();
 
-        // 로그인 상태 업데이트
         isLoggedIn = true;
         notifyListeners();
 
+        if (!context.mounted) return;
         _showDialog(context, "로그인 성공", "메인 화면으로 이동합니다.");
 
-        // 로그인 성공 후 메인 화면으로 이동
-        // ✅ 로그인 후 이전 화면 제거 후 메인 화면 이동
         Future.delayed(const Duration(seconds: 1), () {
+          if (!context.mounted) return;
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => const MainScreen2()),
-                (Route<dynamic> route) => false, // 🔥 이전 모든 화면 제거
+            (Route<dynamic> route) => false,
           );
         });
       } else {
+        if (!context.mounted) return;
         _showDialog(context, "로그인 실패", "아이디 또는 비밀번호가 잘못되었습니다.");
       }
     } catch (e) {
+      if (!context.mounted) return;
       _showDialog(context, "네트워크 오류", "오류 발생: $e");
     } finally {
       isLoading = false;
@@ -119,22 +132,17 @@ class LoginController extends ChangeNotifier {
     await secureStorage.delete(key: "refreshToken");
     await secureStorage.delete(key: "profileImg");
     await secureStorage.delete(key: "mid");
+    await secureStorage.delete(key: "memberId");
 
-    // 로그인 상태 업데이트
     isLoggedIn = false;
     notifyListeners();
 
-    _showDialog(context, "로그아웃","성공");
-
-    // 메인 화면으로 이동
-
-    // ✅ 로그아웃 후 이전 모든 화면 제거 후 메인 화면 이동
+    if (!context.mounted) return;
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (context) => const MainScreen2()),
-          (Route<dynamic> route) => false, // 🔥 이전 모든 화면 제거
+      (Route<dynamic> route) => false,
     );
-
   }
 
   // 입력 필드 초기화

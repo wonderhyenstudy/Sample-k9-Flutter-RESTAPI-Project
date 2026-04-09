@@ -12,7 +12,7 @@ class LibraryEventModel {
       id: json['id'],
       title: json['title'],
       content: json['content'],
-      eventDate: json['eventDate'],
+      eventDate: json['startDate'] ?? json['eventDate'], // Spring: startDate
       location: json['location'],
     );
   }

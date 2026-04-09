@@ -32,16 +32,16 @@ class MyAppRouting extends StatelessWidget {
         '/signup': (context) => const SignupScreen(),
         '/login': (context) => const MyLoginScreen(),
         // 공공데이터 받아 오는 화면으로 라우팅 추가.
-        '/pdtest': (context) => const MyPdTestScreen(),
-        '/sample_design': (context) => const Sample3ListOfListView(),
-        '/sample_design2': (context) => MaterialHomePage(),
-        '/sample_design3': (context) => ResponsiveNavBarPage(),
+        // '/pdtest': (context) => const MyPdTestScreen(),
+        // '/sample_design': (context) => const Sample3ListOfListView(),
+        // '/sample_design2': (context) => MaterialHomePage(),
+        // '/sample_design3': (context) => ResponsiveNavBarPage(),
         '/todos': (context) => TodosScreen(),
         "/todoCreate": (context) => const TodoCreateScreen(),
         '/todoDetail': (context) => TodoDetailScreen(tno: ModalRoute.of(context)!.settings.arguments as int),
         // ai 라우티.
-        "/ai-image": (context) => AiImageScreen(),
-        "/ai-stock": (context) => AiStockScreen(),
+        // "/ai-image": (context) => AiImageScreen(),
+        // "/ai-stock": (context) => AiStockScreen(),
 
       },
     );

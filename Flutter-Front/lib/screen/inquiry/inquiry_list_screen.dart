@@ -14,7 +14,9 @@ class _InquiryListScreenState extends State<InquiryListScreen> {
   @override
   void initState() {
     super.initState();
-    // 데이터 페칭 (생략)
+    Future.microtask(() {
+      Provider.of<InquiryController>(context, listen: false).fetchMyInquiries();
+    });
   }
 
   @override

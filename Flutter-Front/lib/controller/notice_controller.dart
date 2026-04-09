@@ -1,29 +1,59 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../model/notice_model.dart';
+import '../const/api_constants.dart';
 
 /// 공지사항 게시판의 데이터를 관리하는 컨트롤러
+/// API: GET /api/notice?page=0&size=20
 class NoticeController extends ChangeNotifier {
-  // 공지사항 최근 목록 저장
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+
   List<NoticeModel> _noticeList = [];
   List<NoticeModel> get noticeList => _noticeList;
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
 
-  /// 공지사항 리스트 페칭 메서드
-  Future<void> fetchNotices() async {
+  String? _errorMessage;
+  String? get errorMessage => _errorMessage;
+
+  Future<String?> _getAccessToken() async =>
+      await _secureStorage.read(key: "accessToken");
+
+  /// 공지사항 목록 조회 (상단 고정 공지 우선 정렬은 서버에서 처리)
+  Future<void> fetchNotices({int page = 0, int size = 20}) async {
     _isLoading = true;
-    notifyListeners(); // View에 State 변경을 전파
+    _errorMessage = null;
+    notifyListeners();
 
     try {
-      // TODO: Spring Boot API 연동 (NoticeController에서 DTO 매핑)
-      await Future.delayed(const Duration(seconds: 1)); 
-      _noticeList = [];
+      final String? accessToken = await _getAccessToken();
+      final url = Uri.parse(
+          '${ApiConstants.springBaseUrl}/notice?page=$page&size=$size');
+
+      final response = await http.get(url, headers: {
+        if (accessToken != null) 'Authorization': 'Bearer $accessToken',
+        'Content-Type': 'application/json',
+      });
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> pageData =
+            jsonDecode(utf8.decode(response.bodyBytes));
+        final List<dynamic> content = pageData['content'] ?? [];
+        _noticeList =
+            content.map((json) => NoticeModel.fromJson(json)).toList();
+      } else {
+        _errorMessage = '공지사항 조회 실패 (${response.statusCode})';
+        _noticeList = [];
+      }
     } catch (e) {
+      _errorMessage = '네트워크 오류: $e';
       print('공지사항 불러오기 에러: $e');
     } finally {
       _isLoading = false;
-      notifyListeners(); // 로딩 종료 처리 후 UI 렌더링
+      notifyListeners();
     }
   }
 }

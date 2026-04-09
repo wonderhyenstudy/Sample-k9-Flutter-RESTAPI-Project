@@ -11,8 +11,8 @@ class ApplyModel {
     return ApplyModel(
       id: json['id'],
       memberId: json['memberId'],
-      facilityName: json['facilityName'],
-      applyDate: json['applyDate'],
+      facilityName: json['facilityType'] ?? json['facilityName'], // Spring: facilityType
+      applyDate: json['reserveDate'] ?? json['applyDate'],        // Spring: reserveDate
       status: json['status'],
     );
   }

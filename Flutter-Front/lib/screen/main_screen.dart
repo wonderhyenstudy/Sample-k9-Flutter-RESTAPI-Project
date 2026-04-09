@@ -17,7 +17,8 @@ class _MainScreen2State extends State<MainScreen2> {
   final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
 
   // ✅ 서버 IP (SignupController와 동일하게 설정해야 합니다)
-  final String serverIp = "http://10.100.201.87:8080"; // ‼️ localhost 대신 실제 IP 사용
+  // 10.0.2.2 ,에뮬레이터 인경우
+  final String serverIp = "http://10.0.2.2:8080"; // ‼️ localhost 대신 실제 IP 사용
 
   String? userId;
   String? profileImgId; // ✅ 프로필 이미지 ID를 저장할 변수
@@ -60,38 +61,27 @@ class _MainScreen2State extends State<MainScreen2> {
           child: ListView(
             padding: const EdgeInsets.all(16),
             children: [
-              // ✅ --- 프로필 이미지 표시 ---
+              // 프로필 이미지
               Center(
                 child: CircleAvatar(
                   radius: 60,
                   backgroundColor: Colors.grey[200],
-                  // profileImgId가 있으면 NetworkImage 로드, 없으면 기본 아이콘
-                  // 예시
-                  //http://10.100.201.87:8080/member/view/6902c22d2f5a26d3ccb68d47
                   backgroundImage: (profileImgId != null && profileImgId!.isNotEmpty)
                       ? NetworkImage("$serverIp/member/view/$profileImgId")
                       : null,
                   onBackgroundImageError: (profileImgId != null && profileImgId!.isNotEmpty)
                       ? (exception, stackTrace) {
-                    print("프로필 이미지 로드 오류: $exception");
-                    // ‼️ 에러 발생 시 (예: 이미지가 삭제되었거나) 기본 아이콘을 보여주기 위해
-                    // setState(() { profileImgId = null; }); // <- 무한 루프 위험
-                    // 대신, 이미지가 없는 것처럼 처리 (아래 child가 보이도록)
-                  }
+                          print("프로필 이미지 로드 오류: $exception");
+                        }
                       : null,
                   child: (profileImgId == null || profileImgId!.isEmpty)
-                      ? Icon(
-                    Icons.person,
-                    size: 60,
-                    color: Colors.grey[600],
-                  )
+                      ? Icon(Icons.person, size: 60, color: Colors.grey[600])
                       : null,
                 ),
               ),
               const SizedBox(height: 24),
-              // --------------------------
 
-              // 로그인한 유저의 상태를 표시 하는 화면을 구성.
+              // 로그인 상태 텍스트
               Center(
                 child: Text(
                   userId != null ? "환영합니다, $userId님!" : "로그인이 필요합니다.",
@@ -100,55 +90,60 @@ class _MainScreen2State extends State<MainScreen2> {
                 ),
               ),
               const SizedBox(height: 16),
-              // const Center(child: FlutterLogo(size: 100)), // 로고는 잠시 주석 처리 (선택)
-              const SizedBox(height: 16),
-              ElevatedButton(
+
+              // 비로그인 상태: 로그인 / 회원가입 버튼
+              if (!loginController.isLoggedIn) ...[
+                ElevatedButton(
                   onPressed: () => Navigator.pushNamed(context, '/login'),
-                  child: const Text('로그인')),
+                  child: const Text('로그인'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.pushNamed(context, '/signup'),
+                  child: const Text('회원 가입'),
+                ),
+              ],
 
-              ElevatedButton(
-                //라우팅 2번 째 준비물,
-                onPressed: () => Navigator.pushNamed(context, '/signup'),
-                child: const Text('회원 가입'),
-              ),
-
-              if (loginController.isLoggedIn)
-                ElevatedButton(
-                  //라우팅 2번 째 준비물,
-                  onPressed: () => Navigator.pushNamed(context, '/pdtest'),
-                  child: const Text('부산 맛집 공공 데이터'),
+              // 로그인 상태: 도서관 메뉴
+              if (loginController.isLoggedIn) ...[
+                const Divider(),
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  child: Text('도서관 서비스', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                 ),
-
-              if (loginController.isLoggedIn)
                 ElevatedButton(
-                  onPressed: () => Navigator.pushNamed(context, '/sample_design'),
-                  child: const Text('샘플 디자인1-중첩리스트'),
+                  onPressed: () => Navigator.pushNamed(context, '/bookList'),
+                  child: const Text('도서 검색'),
                 ),
-              if (loginController.isLoggedIn)
                 ElevatedButton(
-                  onPressed: () => Navigator.pushNamed(context, '/sample_design2'),
-                  child: const Text('샘플 디자인2-탭모드'),
+                  onPressed: () => Navigator.pushNamed(context, '/noticeList'),
+                  child: const Text('공지사항'),
                 ),
-              if (loginController.isLoggedIn)
                 ElevatedButton(
-                  onPressed: () => Navigator.pushNamed(context, '/sample_design3'),
-                  child: const Text('샘플 디자인3-드로워-네비게이션'),
+                  onPressed: () => Navigator.pushNamed(context, '/eventList'),
+                  child: const Text('도서관 행사'),
                 ),
-              if (loginController.isLoggedIn)
+                ElevatedButton(
+                  onPressed: () => Navigator.pushNamed(context, '/facilityReserve'),
+                  child: const Text('시설 예약'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.pushNamed(context, '/mypage'),
+                  child: const Text('마이페이지'),
+                ),
+                const Divider(),
                 ElevatedButton(
                   onPressed: () => Navigator.pushNamed(context, '/todos'),
-                  child: const Text('todos 일정'),
+                  child: const Text('Todos 일정'),
                 ),
-              if (loginController.isLoggedIn)
                 ElevatedButton(
                   onPressed: () => Navigator.pushNamed(context, '/ai-image'),
-                  child: const Text('Ai 이미지 테스트'),
+                  child: const Text('AI 이미지'),
                 ),
-              if (loginController.isLoggedIn)
                 ElevatedButton(
                   onPressed: () => Navigator.pushNamed(context, '/ai-stock'),
-                  child: const Text('Ai 주가 테스트'),
+                  child: const Text('AI 주가'),
                 ),
+              ],
             ],
           )),
     );

@@ -1,0 +1,360 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1775712642782,
+  "projectRoot": "e:\\0-sample-flutter-projectt-k9",
+  "techStack": {
+    "languages": [],
+    "frameworks": [],
+    "packageManager": null,
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": null,
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": null,
+    "scripts": {}
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [],
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "Flask-Back": {
+      "path": "Flask-Back",
+      "purpose": null,
+      "fileCount": 29,
+      "lastAccessed": 1775712642230,
+      "keyFiles": [
+        "7-samsung_stock_2022_01_2025_10_13.csv",
+        "app-250401-copy.py",
+        "app-공구-폐가전-동물상-삼성주가-yolov8-이미지-영상-폴백버전-최종완성.py",
+        "app-모델-통합-싱글톤-s3연동확인.py",
+        "app-플라스크-fastapi-샘플코드 변환.py"
+      ]
+    },
+    "Flutter-Front": {
+      "path": "Flutter-Front",
+      "purpose": null,
+      "fileCount": 7,
+      "lastAccessed": 1775712642248,
+      "keyFiles": [
+        "analysis_options.yaml",
+        "pubspec.lock",
+        "pubspec.yaml",
+        "README.md"
+      ]
+    },
+    "Spring-Back": {
+      "path": "Spring-Back",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1775712642324,
+      "keyFiles": [
+        "README.md"
+      ]
+    },
+    "Flutter-Front\\assets": {
+      "path": "Flutter-Front\\assets",
+      "purpose": "Static assets",
+      "fileCount": 0,
+      "lastAccessed": 1775712642640,
+      "keyFiles": []
+    },
+    "Flutter-Front\\build": {
+      "path": "Flutter-Front\\build",
+      "purpose": "Build output",
+      "fileCount": 2,
+      "lastAccessed": 1775712642649,
+      "keyFiles": [
+        "9edde7566eae1e95073838869bee103d.cache.dill.track.dill",
+        "last_build_run.json"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "Flutter-Front\\lib\\controller\\auth\\login_controller.dart",
+      "accessCount": 6,
+      "lastAccessed": 1775715465929,
+      "type": "file"
+    },
+    {
+      "path": "Spring-Back\\SpringBasic\\api5012\\src\\main\\java",
+      "accessCount": 3,
+      "lastAccessed": 1775715282623,
+      "type": "directory"
+    },
+    {
+      "path": "Flutter-Front\\lib",
+      "accessCount": 2,
+      "lastAccessed": 1775714349694,
+      "type": "directory"
+    },
+    {
+      "path": "Flutter-Front\\lib\\main.dart",
+      "accessCount": 2,
+      "lastAccessed": 1775714422154,
+      "type": "file"
+    },
+    {
+      "path": "Flutter-Front\\lib\\my_app.dart",
+      "accessCount": 2,
+      "lastAccessed": 1775714452352,
+      "type": "file"
+    },
+    {
+      "path": "Flutter-Front\\lib\\screen\\main_screen.dart",
+      "accessCount": 2,
+      "lastAccessed": 1775714505074,
+      "type": "file"
+    },
+    {
+      "path": "Flutter-Front\\lib\\screen\\mypage_screen.dart",
+      "accessCount": 2,
+      "lastAccessed": 1775714547235,
+      "type": "file"
+    },
+    {
+      "path": "Flutter-Front\\lib\\controller\\book_controller.dart",
+      "accessCount": 2,
+      "lastAccessed": 1775714580966,
+      "type": "file"
+    },
+    {
+      "path": "Flutter-Front\\lib\\model\\event_model.dart",
+      "accessCount": 2,
+      "lastAccessed": 1775714883063,
+      "type": "file"
+    },
+    {
+      "path": "Flutter-Front\\lib\\model\\inquiry_model.dart",
+      "accessCount": 2,
+      "lastAccessed": 1775714890526,
+      "type": "file"
+    },
+    {
+      "path": "Flutter-Front\\lib\\model\\apply_model.dart",
+      "accessCount": 2,
+      "lastAccessed": 1775714897688,
+      "type": "file"
+    },
+    {
+      "path": "Flutter-Front\\lib\\controller\\rental_controller.dart",
+      "accessCount": 2,
+      "lastAccessed": 1775714914970,
+      "type": "file"
+    },
+    {
+      "path": "Flutter-Front\\lib\\controller\\notice_controller.dart",
+      "accessCount": 2,
+      "lastAccessed": 1775714934626,
+      "type": "file"
+    },
+    {
+      "path": "Flutter-Front\\lib\\controller\\event_controller.dart",
+      "accessCount": 2,
+      "lastAccessed": 1775714947173,
+      "type": "file"
+    },
+    {
+      "path": "Flutter-Front\\lib\\controller\\inquiry_controller.dart",
+      "accessCount": 2,
+      "lastAccessed": 1775714972807,
+      "type": "file"
+    },
+    {
+      "path": "Flutter-Front\\lib\\controller\\reserve_controller.dart",
+      "accessCount": 2,
+      "lastAccessed": 1775714989965,
+      "type": "file"
+    },
+    {
+      "path": "Flutter-Front\\lib\\screen\\rental\\rental_list_screen.dart",
+      "accessCount": 2,
+      "lastAccessed": 1775715009606,
+      "type": "file"
+    },
+    {
+      "path": "Flutter-Front\\lib\\screen\\inquiry\\inquiry_list_screen.dart",
+      "accessCount": 2,
+      "lastAccessed": 1775715015667,
+      "type": "file"
+    },
+    {
+      "path": "Flutter-Front\\lib\\screen\\inquiry\\inquiry_write_screen.dart",
+      "accessCount": 2,
+      "lastAccessed": 1775715030465,
+      "type": "file"
+    },
+    {
+      "path": "Flutter-Front\\lib\\controller\\auth\\signup_controller.dart",
+      "accessCount": 2,
+      "lastAccessed": 1775715436427,
+      "type": "file"
+    },
+    {
+      "path": "Flutter-Front\\lib\\screen\\signup_screen.dart",
+      "accessCount": 2,
+      "lastAccessed": 1775715459510,
+      "type": "file"
+    },
+    {
+      "path": "FEATURE_FILES.md",
+      "accessCount": 2,
+      "lastAccessed": 1775715690029,
+      "type": "file"
+    },
+    {
+      "path": "Flutter-Front",
+      "accessCount": 1,
+      "lastAccessed": 1775714315936,
+      "type": "directory"
+    },
+    {
+      "path": "Flutter-Front\\lib\\screen\\my_app_routing.dart",
+      "accessCount": 1,
+      "lastAccessed": 1775714320801,
+      "type": "file"
+    },
+    {
+      "path": "Flutter-Front\\lib\\screen\\login_screen.dart",
+      "accessCount": 1,
+      "lastAccessed": 1775714329483,
+      "type": "file"
+    },
+    {
+      "path": "Flutter-Front\\lib\\const\\api_constants.dart",
+      "accessCount": 1,
+      "lastAccessed": 1775714330425,
+      "type": "file"
+    },
+    {
+      "path": "Flutter-Front\\lib\\screen\\book\\book_list_screen.dart",
+      "accessCount": 1,
+      "lastAccessed": 1775714337758,
+      "type": "file"
+    },
+    {
+      "path": "Flutter-Front\\lib\\screen\\book\\book_detail_screen.dart",
+      "accessCount": 1,
+      "lastAccessed": 1775714338559,
+      "type": "file"
+    },
+    {
+      "path": "Flutter-Front\\lib\\screen\\notice\\notice_list_screen.dart",
+      "accessCount": 1,
+      "lastAccessed": 1775714339518,
+      "type": "file"
+    },
+    {
+      "path": "Flutter-Front\\lib\\screen\\event\\event_list_screen.dart",
+      "accessCount": 1,
+      "lastAccessed": 1775714339976,
+      "type": "file"
+    },
+    {
+      "path": "Flutter-Front\\lib\\screen\\reserve\\facility_reserve_screen.dart",
+      "accessCount": 1,
+      "lastAccessed": 1775714341473,
+      "type": "file"
+    },
+    {
+      "path": "Flutter-Front\\lib\\screen",
+      "accessCount": 1,
+      "lastAccessed": 1775714350708,
+      "type": "directory"
+    },
+    {
+      "path": "Flutter-Front\\lib\\screen\\notice\\notice_detail_screen.dart",
+      "accessCount": 1,
+      "lastAccessed": 1775714457789,
+      "type": "file"
+    },
+    {
+      "path": "Flutter-Front\\lib\\screen\\event\\event_detail_screen.dart",
+      "accessCount": 1,
+      "lastAccessed": 1775714458614,
+      "type": "file"
+    },
+    {
+      "path": "Spring-Back\\SpringBasic\\api5012\\src\\main\\java\\com\\busanit501\\api5012\\controller\\library\\RentalController.java",
+      "accessCount": 1,
+      "lastAccessed": 1775714727748,
+      "type": "file"
+    },
+    {
+      "path": "Spring-Back\\SpringBasic\\api5012\\src\\main\\java\\com\\busanit501\\api5012\\controller\\library\\NoticeController.java",
+      "accessCount": 1,
+      "lastAccessed": 1775714728488,
+      "type": "file"
+    },
+    {
+      "path": "Spring-Back\\SpringBasic\\api5012\\src\\main\\java\\com\\busanit501\\api5012\\controller\\library\\EventController.java",
+      "accessCount": 1,
+      "lastAccessed": 1775714730272,
+      "type": "file"
+    },
+    {
+      "path": "Spring-Back\\SpringBasic\\api5012\\src\\main\\java\\com\\busanit501\\api5012\\controller\\library\\InquiryController.java",
+      "accessCount": 1,
+      "lastAccessed": 1775714730635,
+      "type": "file"
+    },
+    {
+      "path": "Spring-Back\\SpringBasic\\api5012\\src\\main\\java\\com\\busanit501\\api5012\\controller\\library\\ApplyController.java",
+      "accessCount": 1,
+      "lastAccessed": 1775714731020,
+      "type": "file"
+    },
+    {
+      "path": "Flutter-Front\\lib\\model\\rental_model.dart",
+      "accessCount": 1,
+      "lastAccessed": 1775714746083,
+      "type": "file"
+    },
+    {
+      "path": "Flutter-Front\\lib\\model\\notice_model.dart",
+      "accessCount": 1,
+      "lastAccessed": 1775714746650,
+      "type": "file"
+    },
+    {
+      "path": "Spring-Back\\SpringBasic\\api5012\\src\\main\\java\\com\\busanit501\\api5012\\controller\\library\\LibraryMemberController.java",
+      "accessCount": 1,
+      "lastAccessed": 1775714748490,
+      "type": "file"
+    },
+    {
+      "path": "Spring-Back\\SpringBasic\\api5012\\src\\main\\java\\com\\busanit501\\api5012\\dto\\library\\MemberDTO.java",
+      "accessCount": 1,
+      "lastAccessed": 1775714775673,
+      "type": "file"
+    },
+    {
+      "path": "Spring-Back\\SpringBasic\\api5012\\src\\main\\java\\com\\busanit501\\api5012\\dto\\library\\MemberSignupDTO.java",
+      "accessCount": 1,
+      "lastAccessed": 1775715283033,
+      "type": "file"
+    },
+    {
+      "path": "Spring-Back\\SpringBasic\\api5012\\src\\main\\java\\com\\busanit501\\api5012\\service\\library\\MemberLibraryServiceImpl.java",
+      "accessCount": 1,
+      "lastAccessed": 1775715389821,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}

@@ -11,7 +11,7 @@ import '../../model/todos/todo_dto.dart';
 class TodoController extends ChangeNotifier {
   final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
   // final String serverIp = "http://192.168.219.103:8080/api/todo"; // 서버 주소
-  final String serverIp = "http://10.100.201.87:8080/api/todo"; // 서버 주소
+  final String serverIp = "http://10.0.2.2:8080/api/todo"; // 서버 주소
 
   List<TodoDTO> todos = [];
   bool isLoading = false;

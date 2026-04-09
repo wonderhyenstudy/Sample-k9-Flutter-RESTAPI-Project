@@ -14,7 +14,7 @@ class InquiryModel {
       title: json['title'],
       content: json['content'],
       writer: json['writer'],
-      isReplied: json['isReplied'],
+      isReplied: json['answered'] ?? json['isReplied'], // Spring: answered
       regDate: json['regDate'],
     );
   }
