@@ -197,4 +197,78 @@ public class EventServiceImpl implements EventService {
                 .map(EventApplicationDTO::fromEntity)
                 .collect(Collectors.toList());
     }
+
+    /**
+     * createEvent - 행사 등록 (관리자 전용)
+     * DTO 의 필수 필드를 바탕으로 LibraryEvent 엔티티를 생성합니다.
+     */
+    @Override
+    @Transactional
+    public Long createEvent(LibraryEventDTO dto) {
+        log.info("행사 등록 - title: {}, eventDate: {}", dto.getTitle(), dto.getEventDate());
+
+        LibraryEvent event = LibraryEvent.builder()
+                .category(dto.getCategory())
+                .title(dto.getTitle())
+                .content(dto.getContent())
+                .eventDate(dto.getEventDate())
+                .place(dto.getPlace())
+                .maxParticipants(dto.getMaxParticipants())
+                .currentParticipants(0)
+                .status("OPEN")
+                .build();
+
+        Long savedId = libraryEventRepository.save(event).getId();
+        log.info("행사 등록 완료 - eventId: {}", savedId);
+        return savedId;
+    }
+
+    /**
+     * updateEvent - 행사 수정 (관리자 전용)
+     * 도메인 updateInfo() 호출 후 더티체킹으로 자동 UPDATE.
+     */
+    @Override
+    @Transactional
+    public void updateEvent(Long id, LibraryEventDTO dto) {
+        log.info("행사 수정 - eventId: {}", id);
+
+        LibraryEvent event = libraryEventRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("행사를 찾을 수 없습니다. id: " + id));
+
+        event.updateInfo(
+                dto.getCategory(),
+                dto.getTitle(),
+                dto.getContent(),
+                dto.getEventDate(),
+                dto.getPlace(),
+                dto.getMaxParticipants()
+        );
+
+        // 상태 변경이 요청된 경우만 반영
+        if (dto.getStatus() != null) {
+            if ("OPEN".equalsIgnoreCase(dto.getStatus())) {
+                event.reopenEvent();
+            } else if ("CLOSED".equalsIgnoreCase(dto.getStatus())) {
+                event.closeEvent();
+            }
+        }
+
+        log.info("행사 수정 완료 - eventId: {}", id);
+    }
+
+    /**
+     * deleteEvent - 행사 삭제 (관리자 전용)
+     * 관련 EventApplication 은 FK 제약에 따라 사전 삭제가 필요할 수 있습니다.
+     */
+    @Override
+    @Transactional
+    public void deleteEvent(Long id) {
+        log.info("행사 삭제 - eventId: {}", id);
+
+        LibraryEvent event = libraryEventRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("행사를 찾을 수 없습니다. id: " + id));
+
+        libraryEventRepository.delete(event);
+        log.info("행사 삭제 완료 - eventId: {}", id);
+    }
 }

@@ -1,3 +1,4 @@
+import 'package:busanit501_flutter_workspace_251021/screen/admin/admin_book_edit_screen.dart';
 import 'package:busanit501_flutter_workspace_251021/screen/my_splash.dart';
 import 'package:flutter/material.dart';
 
@@ -111,6 +112,7 @@ class MyApp extends StatelessWidget {
         // ── 관리자
         '/admin': (_) => const AdminDashboardScreen(),
         '/adminBook': (_) => const AdminBookScreen(),
+        '/adminBookEdit': (_) => const AdminBookEditScreen(),
         '/adminMember': (_) => const AdminMemberScreen(),
         '/adminEvent': (_) => const AdminEventScreen(),
         '/adminNotice': (_) => const AdminNoticeScreen(),

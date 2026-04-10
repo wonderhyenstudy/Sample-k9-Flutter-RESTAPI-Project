@@ -242,4 +242,40 @@ public class InquiryController {
                     .body(Map.of("result", "error", "message", e.getMessage()));
         }
     }
+
+    // ──────────────────────────────────────────────────────
+    // PUT /api/inquiry/{id}  →  문의사항 수정
+    // ──────────────────────────────────────────────────────
+
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "문의사항 수정", description = "작성자 또는 관리자 전용: 제목/내용/비밀글 여부를 수정합니다.")
+    public ResponseEntity<Map<String, String>> updateInquiry(
+            @PathVariable Long id,
+            @RequestBody InquiryDTO dto) {
+        log.info("문의사항 수정 요청 - inquiryId: {}", id);
+        try {
+            inquiryService.updateInquiry(id, dto);
+            return ResponseEntity.ok(Map.of("result", "success", "message", "문의사항이 수정되었습니다."));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("result", "error", "message", e.getMessage()));
+        }
+    }
+
+    // ──────────────────────────────────────────────────────
+    // DELETE /api/inquiry/{id}  →  문의사항 삭제
+    // ──────────────────────────────────────────────────────
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "문의사항 삭제", description = "작성자 또는 관리자 전용: 문의사항과 관련 답변을 모두 삭제합니다.")
+    public ResponseEntity<Map<String, String>> deleteInquiry(@PathVariable Long id) {
+        log.info("문의사항 삭제 요청 - inquiryId: {}", id);
+        try {
+            inquiryService.deleteInquiry(id);
+            return ResponseEntity.ok(Map.of("result", "success", "message", "문의사항이 삭제되었습니다."));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("result", "error", "message", e.getMessage()));
+        }
+    }
 }

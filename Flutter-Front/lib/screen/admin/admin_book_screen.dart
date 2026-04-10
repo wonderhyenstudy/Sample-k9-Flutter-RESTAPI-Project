@@ -4,6 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
 import '../../const/api_constants.dart';
+import '../../model/book_model.dart';
 
 /// 관리자 - 도서 관리 화면
 /// GET /api/book?page=0&size=100
@@ -50,7 +51,7 @@ class _AdminBookScreenState extends State<AdminBookScreen> {
       ? _books
       : _books
           .where((b) =>
-              (b['title'] ?? '').toLowerCase().contains(_searchQuery) ||
+              (b['bookTitle'] ?? '').toLowerCase().contains(_searchQuery) ||
               (b['author'] ?? '').toLowerCase().contains(_searchQuery))
           .toList();
 
@@ -117,15 +118,25 @@ class _AdminBookScreenState extends State<AdminBookScreen> {
                         itemCount: _filtered.length,
                         itemBuilder: (_, i) {
                           final b = _filtered[i];
-                          final status = b['status'] as String?;
+                          // JSON 맵 데이터를 BookModel로 변환하여 전달
+                          final bookModel = BookModel.fromJson(b);
+                          final status = bookModel.status;
                           return ListTile(
+                            onTap: () {
+                              // 상세 및 수정 화면으로 이동 후 목록 새로고침
+                              Navigator.pushNamed(
+                                context,
+                                '/adminBookEdit',
+                                arguments: bookModel,
+                              ).then((_) => _fetchBooks());
+                            },
                             leading: CircleAvatar(
                               backgroundColor:
                                   _statusColor(status).withOpacity(0.15),
                               child: Icon(Icons.menu_book,
                                   color: _statusColor(status)),
                             ),
-                            title: Text(b['title'] ?? '-',
+                            title: Text(b['bookTitle'] ?? '-',
                                 style: const TextStyle(
                                     fontWeight: FontWeight.w500)),
                             subtitle: Text(

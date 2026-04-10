@@ -200,4 +200,89 @@ public class ApplyController {
                     .body(Map.of("result", "error", "message", e.getMessage()));
         }
     }
+
+    // ──────────────────────────────────────────────────────
+    // GET /api/apply  →  전체 예약 목록 조회 (관리자)
+    // ──────────────────────────────────────────────────────
+
+    @GetMapping
+    @Operation(summary = "전체 예약 목록 조회 (관리자)", description = "모든 회원의 시설 예약 목록을 페이지 단위로 반환합니다.")
+    public ResponseEntity<Page<ApplyDTO>> getAllApplies(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        log.info("전체 예약 목록 조회 - page: {}", page);
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("regDate").descending());
+        Page<ApplyDTO> applies = applyService.getAllApplies(pageable);
+        return ResponseEntity.ok(applies);
+    }
+
+    // ──────────────────────────────────────────────────────
+    // POST /api/apply/admin  →  관리자 예약 등록
+    // ──────────────────────────────────────────────────────
+
+    @PostMapping(value = "/admin", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "관리자 예약 등록", description = "관리자가 특정 회원을 대신해 예약을 등록합니다.")
+    public ResponseEntity<Map<String, Object>> createApplyAsAdmin(
+            @Parameter(description = "대상 회원 ID")
+            @RequestParam Long memberId,
+            @RequestBody ApplyDTO dto) {
+        log.info("관리자 예약 등록 요청 - memberId: {}, 날짜: {}", memberId, dto.getReserveDate());
+
+        try {
+            Long applyId = applyService.createApplyAsAdmin(dto, memberId);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(Map.of(
+                            "result", "success",
+                            "applyId", applyId,
+                            "message", "예약이 등록되었습니다."
+                    ));
+        } catch (IllegalStateException e) {
+            log.warn("관리자 예약 등록 실패 - {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("result", "error", "message", e.getMessage()));
+        } catch (RuntimeException e) {
+            log.warn("관리자 예약 등록 오류 - {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("result", "error", "message", e.getMessage()));
+        }
+    }
+
+    // ──────────────────────────────────────────────────────
+    // PUT /api/apply/{id}  →  예약 수정 (관리자)
+    // ──────────────────────────────────────────────────────
+
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "예약 정보 수정 (관리자)", description = "예약 정보(신청자명/시설/연락처/인원/날짜/상태)를 수정합니다.")
+    public ResponseEntity<Map<String, String>> updateApply(
+            @PathVariable Long id,
+            @RequestBody ApplyDTO dto) {
+        log.info("예약 정보 수정 요청 - applyId: {}", id);
+
+        try {
+            applyService.updateApply(id, dto);
+            return ResponseEntity.ok(Map.of("result", "success", "message", "예약 정보가 수정되었습니다."));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("result", "error", "message", e.getMessage()));
+        }
+    }
+
+    // ──────────────────────────────────────────────────────
+    // DELETE /api/apply/{id}  →  예약 삭제 (관리자)
+    // ──────────────────────────────────────────────────────
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "예약 삭제 (관리자)", description = "예약 신청을 삭제합니다.")
+    public ResponseEntity<Map<String, String>> deleteApply(@PathVariable Long id) {
+        log.info("예약 삭제 요청 - applyId: {}", id);
+
+        try {
+            applyService.deleteApply(id);
+            return ResponseEntity.ok(Map.of("result", "success", "message", "예약이 삭제되었습니다."));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("result", "error", "message", e.getMessage()));
+        }
+    }
 }

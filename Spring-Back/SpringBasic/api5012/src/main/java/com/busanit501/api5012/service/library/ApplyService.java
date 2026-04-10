@@ -65,4 +65,39 @@ public interface ApplyService {
      * @throws RuntimeException 예약 기록 없음, 이미 처리된 경우
      */
     void rejectApply(Long applyId);
+
+    /**
+     * getAllApplies - 전체 예약 신청 목록 조회 (관리자 전용)
+     * 모든 회원의 시설 예약 신청 목록을 페이지 단위로 반환합니다.
+     *
+     * @param pageable 페이지 정보
+     * @return 페이지네이션이 적용된 전체 예약 신청 목록
+     */
+    Page<ApplyDTO> getAllApplies(Pageable pageable);
+
+    /**
+     * createApplyAsAdmin - 관리자 직접 예약 등록
+     * 관리자가 특정 회원을 대신해 예약을 등록합니다.
+     *
+     * @param dto      예약 신청 정보
+     * @param memberId 신청 회원 ID
+     * @return 생성된 예약 기본키
+     */
+    Long createApplyAsAdmin(ApplyDTO dto, Long memberId);
+
+    /**
+     * updateApply - 예약 정보 수정 (관리자 전용)
+     * 신청자명/시설/연락처/인원/예약일 및 상태를 수정합니다.
+     *
+     * @param id  수정할 예약 기본키
+     * @param dto 수정할 정보
+     */
+    void updateApply(Long id, ApplyDTO dto);
+
+    /**
+     * deleteApply - 예약 삭제 (관리자 전용)
+     *
+     * @param id 삭제할 예약 기본키
+     */
+    void deleteApply(Long id);
 }

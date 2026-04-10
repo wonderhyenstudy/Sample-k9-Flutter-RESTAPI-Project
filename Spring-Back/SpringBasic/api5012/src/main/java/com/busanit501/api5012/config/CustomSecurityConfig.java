@@ -101,6 +101,8 @@ public class CustomSecurityConfig {
 
         // 추가: 특정 경로에 대한 권한 허용 설정
         http.authorizeHttpRequests(auth -> auth
+                // 1. 이미지 및 업로드 파일 경로 허용
+                .requestMatchers("/upload/**", "/view/**").permitAll()
                 // 1. 스웨거 관련 모든 경로 허용
                 .requestMatchers(
                         "/swagger-ui/**",

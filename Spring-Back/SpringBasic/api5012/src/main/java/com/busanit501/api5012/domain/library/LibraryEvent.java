@@ -169,4 +169,27 @@ public class LibraryEvent {
         return "OPEN".equals(this.status)
                 && this.currentParticipants < this.maxParticipants;
     }
+
+    /**
+     * updateInfo - 행사 정보 수정 (관리자 전용)
+     * 제목/카테고리/내용/날짜/장소/최대인원 등을 한 번에 수정합니다.
+     * status 와 currentParticipants 는 별도 메서드로만 변경합니다.
+     */
+    public void updateInfo(String category, String title, String content,
+                           LocalDate eventDate, String place, int maxParticipants) {
+        if (category != null) this.category = category;
+        if (title != null) this.title = title;
+        if (content != null) this.content = content;
+        if (eventDate != null) this.eventDate = eventDate;
+        if (place != null) this.place = place;
+        if (maxParticipants > 0) this.maxParticipants = maxParticipants;
+    }
+
+    /**
+     * reopenEvent - 행사 재개 (관리자 전용)
+     * CLOSED 상태를 OPEN 으로 되돌립니다.
+     */
+    public void reopenEvent() {
+        this.status = "OPEN";
+    }
 }

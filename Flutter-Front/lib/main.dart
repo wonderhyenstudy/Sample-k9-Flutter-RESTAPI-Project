@@ -4,6 +4,7 @@ import 'package:busanit501_flutter_workspace_251021/controller/todos/todo_contro
 import 'package:busanit501_flutter_workspace_251021/my_app.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'controller/admin/admin_book_controller.dart';
 import 'controller/ai/image/ai_image_controller.dart';
 import 'controller/pd_data/food_controller.dart';
 import 'controller/book_controller.dart';
@@ -31,6 +32,9 @@ void main() {
           ChangeNotifierProvider(create: (context) => EventController()),
           ChangeNotifierProvider(create: (context) => InquiryController()),
           ChangeNotifierProvider(create: (context) => ReserveController()),
+          //관리자
+          // ── 관리자 도서 컨트롤러를 여기에 추가 ──
+          ChangeNotifierProvider(create: (_) => AdminBookController()),
         ],
         child: const MyApp(),
       )

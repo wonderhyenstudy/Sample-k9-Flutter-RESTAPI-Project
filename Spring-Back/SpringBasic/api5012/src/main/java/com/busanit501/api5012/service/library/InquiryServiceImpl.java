@@ -216,4 +216,43 @@ public class InquiryServiceImpl implements InquiryService {
 
         return replyId;
     }
+
+    /**
+     * updateInquiry - 문의사항 수정 (작성자 또는 관리자)
+     * 제목/내용/비밀글 여부 필드를 변경합니다.
+     */
+    @Override
+    @Transactional
+    public void updateInquiry(Long id, InquiryDTO dto) {
+        log.info("문의사항 수정 - inquiryId: {}", id);
+
+        Inquiry inquiry = inquiryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("문의사항을 찾을 수 없습니다. id: " + id));
+
+        if (dto.getTitle() != null && !dto.getTitle().isBlank()) {
+            inquiry.changeTitle(dto.getTitle());
+        }
+        if (dto.getContent() != null && !dto.getContent().isBlank()) {
+            inquiry.changeContent(dto.getContent());
+        }
+        inquiry.changeSecret(dto.isSecret());
+
+        log.info("문의사항 수정 완료 - inquiryId: {}", id);
+    }
+
+    /**
+     * deleteInquiry - 문의사항 삭제
+     * cascade = ALL + orphanRemoval 로 관련 답변도 함께 삭제됩니다.
+     */
+    @Override
+    @Transactional
+    public void deleteInquiry(Long id) {
+        log.info("문의사항 삭제 - inquiryId: {}", id);
+
+        Inquiry inquiry = inquiryRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("문의사항을 찾을 수 없습니다. id: " + id));
+
+        inquiryRepository.delete(inquiry);
+        log.info("문의사항 삭제 완료 - inquiryId: {}", id);
+    }
 }

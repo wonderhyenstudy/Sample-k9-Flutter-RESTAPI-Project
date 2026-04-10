@@ -293,4 +293,57 @@ public class MemberLibraryServiceImpl implements MemberLibraryService {
                 .map(MemberDTO::fromEntity)
                 .toList();
     }
+
+    /**
+     * adminUpdateMember - 관리자 전용 회원 정보 수정
+     *
+     * id 기반으로 조회한 뒤 mname/email/region/role 필드를 변경합니다.
+     * 이메일은 다른 회원과 중복되지 않도록 검증합니다.
+     */
+    @Override
+    @Transactional
+    public void adminUpdateMember(Long id, MemberDTO dto) {
+        log.info("관리자 회원 수정 - id: {}, mname: {}, role: {}", id, dto.getMname(), dto.getRole());
+
+        Member member = memberRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("해당 회원을 찾을 수 없습니다. id: " + id));
+
+        if (dto.getMname() != null && !dto.getMname().isBlank()) {
+            member.changeMname(dto.getMname());
+        }
+        if (dto.getEmail() != null && !dto.getEmail().isBlank()) {
+            if (!member.getEmail().equals(dto.getEmail())
+                    && memberRepository.existsByEmail(dto.getEmail())) {
+                throw new IllegalArgumentException("이미 사용 중인 이메일입니다: " + dto.getEmail());
+            }
+            member.changeEmail(dto.getEmail());
+        }
+        if (dto.getRegion() != null) {
+            member.changeRegion(dto.getRegion());
+        }
+        if (dto.getRole() != null) {
+            member.changeRole(dto.getRole());
+        }
+
+        log.info("관리자 회원 수정 완료 - id: {}", id);
+    }
+
+    /**
+     * deleteMember - 관리자 전용 회원 삭제
+     *
+     * JPA findById() 로 존재 확인 후 삭제합니다.
+     * 연관된 대여/예약 등의 외래키 제약은 DB 레벨에서 처리해야 하며,
+     * 필요 시 사전에 CASCADE 설정 또는 연관 데이터 정리 로직을 추가하세요.
+     */
+    @Override
+    @Transactional
+    public void deleteMember(Long id) {
+        log.info("관리자 회원 삭제 - id: {}", id);
+
+        Member member = memberRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("해당 회원을 찾을 수 없습니다. id: " + id));
+
+        memberRepository.delete(member);
+        log.info("관리자 회원 삭제 완료 - id: {}", id);
+    }
 }

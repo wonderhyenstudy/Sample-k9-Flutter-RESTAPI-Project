@@ -154,4 +154,11 @@ public class Inquiry {
     public void toggleSecret() {
         this.secret = !this.secret;
     }
+
+    /**
+     * changeSecret - 비밀글 여부를 명시적으로 설정
+     */
+    public void changeSecret(boolean secret) {
+        this.secret = secret;
+    }
 }

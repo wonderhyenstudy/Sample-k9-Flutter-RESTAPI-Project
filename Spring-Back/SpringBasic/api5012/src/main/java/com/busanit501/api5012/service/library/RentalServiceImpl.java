@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -223,5 +224,24 @@ public class RentalServiceImpl implements RentalService {
         return rentals.stream()
                 .map(RentalDTO::fromEntity)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * getActiveRentalByBookId - 도서의 현재 활성 대여 기록 조회 (관리자용)
+     */
+    @Override
+    public Optional<RentalDTO> getActiveRentalByBookId(Long bookId) {
+        log.info("도서 활성 대여 조회 - bookId: {}", bookId);
+        return rentalRepository.findActiveRentalByBookId(bookId)
+                .map(RentalDTO::fromEntity);
+    }
+
+    /**
+     * getAllRentals - 전체 대여 목록 조회 (관리자용)
+     */
+    @Override
+    public Page<RentalDTO> getAllRentals(Pageable pageable) {
+        log.info("전체 대여 목록 조회 (관리자) - page: {}", pageable.getPageNumber());
+        return rentalRepository.findAllWithDetails(pageable).map(RentalDTO::fromEntity);
     }
 }

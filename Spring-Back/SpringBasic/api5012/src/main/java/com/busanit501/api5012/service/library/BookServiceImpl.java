@@ -2,14 +2,18 @@ package com.busanit501.api5012.service.library;
 
 import com.busanit501.api5012.domain.library.Book;
 import com.busanit501.api5012.domain.library.BookStatus;
+import com.busanit501.api5012.domain.library.RentalStatus;
 import com.busanit501.api5012.dto.library.BookDTO;
 import com.busanit501.api5012.repository.library.BookRepository;
+import com.busanit501.api5012.repository.library.RentalRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
 
 /**
  * BookServiceImpl - 도서 서비스 구현체
@@ -30,6 +34,9 @@ public class BookServiceImpl implements BookService {
 
     /** BookRepository - 도서 엔티티에 대한 DB 접근 */
     private final BookRepository bookRepository;
+
+    /** RentalRepository - 도서 상태 변경 시 대여 기록 동기화에 사용 */
+    private final RentalRepository rentalRepository;
 
     /**
      * getBooks - 도서 목록 조회 (키워드 검색 + 페이지네이션)
@@ -109,10 +116,12 @@ public class BookServiceImpl implements BookService {
     @Override
     @Transactional
     public void updateBook(Long id, BookDTO dto) {
-        log.info("도서 수정 시작 - bookId: {}", id);
+        log.info("도서 수정 시작 - bookId: {}, dto.status: {}", id, dto.getStatus());
 
         Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("해당 도서를 찾을 수 없습니다. id: " + id));
+
+        log.info("도서 수정 - 현재 DB status: {}", book.getStatus());
 
         // 도메인 비즈니스 메서드로 필드 수정 (더티체킹으로 자동 UPDATE)
         book.updateInfo(
@@ -122,7 +131,24 @@ public class BookServiceImpl implements BookService {
                 dto.getDescription()
         );
 
-        log.info("도서 수정 완료 - bookId: {}", id);
+        // status 필드가 전달된 경우 상태도 변경 (관리자 드롭다운 반영)
+        if (dto.getStatus() != null && dto.getStatus() != book.getStatus()) {
+            BookStatus newStatus = dto.getStatus();
+            log.info("도서 상태 변경 감지 - {} → {}", book.getStatus(), newStatus);
+            book.changeStatus(newStatus);
+            // AVAILABLE 로 변경 시 활성 대여 기록도 RETURNED 로 동기화
+            if (newStatus == BookStatus.AVAILABLE) {
+                rentalRepository.findActiveRentalByBookId(id).ifPresent(rental -> {
+                    rental.processReturn(LocalDate.now());
+                    log.info("대여 기록 자동 반납 처리 - rentalId: {}", rental.getId());
+                });
+            }
+        } else {
+            log.info("도서 상태 변경 없음 - dto.status: {}, book.status: {}",
+                    dto.getStatus(), book.getStatus());
+        }
+
+        log.info("도서 수정 완료 - bookId: {}, 최종 status: {}", id, book.getStatus());
     }
 
     /**
@@ -145,6 +171,32 @@ public class BookServiceImpl implements BookService {
 
         bookRepository.delete(book);
         log.info("도서 삭제 완료 - bookId: {}", id);
+    }
+
+    /**
+     * changeBookStatus - 도서 상태 직접 변경 (관리자용)
+     * 분실(LOST), 강제 복원(AVAILABLE) 등 수동 상태 조정에 사용합니다.
+     */
+    @Override
+    @Transactional
+    public void changeBookStatus(Long id, String status) {
+        log.info("도서 상태 변경 요청 - bookId: {}, status: {}", id, status);
+
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("해당 도서를 찾을 수 없습니다. id: " + id));
+
+        BookStatus bookStatus = BookStatus.valueOf(status.toUpperCase());
+        book.changeStatus(bookStatus);
+
+        // AVAILABLE 로 변경 시 활성 대여 기록도 RETURNED 로 동기화
+        if (bookStatus == BookStatus.AVAILABLE) {
+            rentalRepository.findActiveRentalByBookId(id).ifPresent(rental -> {
+                rental.processReturn(LocalDate.now());
+                log.info("대여 기록 자동 반납 처리 - rentalId: {}", rental.getId());
+            });
+        }
+
+        log.info("도서 상태 변경 완료 - bookId: {}, newStatus: {}", id, bookStatus);
     }
 
     /**

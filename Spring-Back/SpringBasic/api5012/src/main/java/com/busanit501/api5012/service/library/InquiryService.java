@@ -87,4 +87,21 @@ public interface InquiryService {
      * @throws RuntimeException 문의사항 없음
      */
     Long addReply(Long inquiryId, ReplyDTO replyDTO);
+
+    /**
+     * updateInquiry - 문의사항 수정 (작성자 또는 관리자)
+     * 제목/내용/비밀글 여부를 수정합니다.
+     *
+     * @param id  수정할 문의사항 기본키
+     * @param dto 수정할 정보
+     */
+    void updateInquiry(Long id, InquiryDTO dto);
+
+    /**
+     * deleteInquiry - 문의사항 삭제 (작성자 또는 관리자)
+     * cascade = ALL, orphanRemoval 설정으로 관련 답변도 함께 삭제됩니다.
+     *
+     * @param id 삭제할 문의사항 기본키
+     */
+    void deleteInquiry(Long id);
 }

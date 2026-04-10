@@ -103,4 +103,20 @@ public interface MemberLibraryService {
      * @return 저장된 UUID 파일명
      */
     String saveProfileImageBase64(String mid, String base64Image);
+
+    /**
+     * adminUpdateMember - 관리자 전용 회원 정보 수정
+     * id 기반으로 이름/이메일/지역/역할을 수정합니다. (비밀번호 제외)
+     *
+     * @param id  수정할 회원 기본키
+     * @param dto 수정할 회원 정보 (mname, email, region, role)
+     */
+    void adminUpdateMember(Long id, MemberDTO dto);
+
+    /**
+     * deleteMember - 관리자 전용 회원 삭제
+     *
+     * @param id 삭제할 회원 기본키
+     */
+    void deleteMember(Long id);
 }

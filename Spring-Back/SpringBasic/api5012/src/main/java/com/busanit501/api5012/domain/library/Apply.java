@@ -139,4 +139,26 @@ public class Apply {
     public boolean isPending() {
         return "PENDING".equals(this.status);
     }
+
+    /**
+     * updateInfo - 예약 정보 수정 (관리자 전용)
+     * 신청자명/시설 유형/연락처/인원/예약일을 수정합니다.
+     * 상태(status)는 별도 메서드(approve/reject)로만 변경합니다.
+     */
+    public void updateInfo(String applicantName, String facilityType, String phone,
+                           int participants, LocalDate reserveDate) {
+        if (applicantName != null) this.applicantName = applicantName;
+        if (facilityType != null) this.facilityType = facilityType;
+        if (phone != null) this.phone = phone;
+        if (participants > 0) this.participants = participants;
+        if (reserveDate != null) this.reserveDate = reserveDate;
+    }
+
+    /**
+     * changeStatus - 예약 상태 직접 변경 (관리자 전용)
+     * PENDING/APPROVED/REJECTED 값을 직접 지정할 때 사용합니다.
+     */
+    public void changeStatus(String status) {
+        this.status = status;
+    }
 }

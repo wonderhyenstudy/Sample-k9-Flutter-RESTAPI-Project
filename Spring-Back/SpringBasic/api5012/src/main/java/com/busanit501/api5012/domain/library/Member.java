@@ -157,4 +157,19 @@ public class Member {
     public void promoteToAdmin() {
         this.role = MemberRole.ADMIN;
     }
+
+    /**
+     * changeRole - 회원 역할 변경 (관리자 전용)
+     * 관리자 편집 화면에서 USER/ADMIN 토글 시 사용합니다.
+     */
+    public void changeRole(MemberRole role) {
+        this.role = role;
+    }
+
+    /**
+     * changeMname - 회원 이름 변경 (관리자 전용)
+     */
+    public void changeMname(String mname) {
+        this.mname = mname;
+    }
 }

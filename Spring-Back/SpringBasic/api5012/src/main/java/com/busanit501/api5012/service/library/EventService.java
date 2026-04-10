@@ -92,4 +92,27 @@ public interface EventService {
      * @return 회원의 전체 행사 신청 목록
      */
     List<EventApplicationDTO> getMyEventApplications(Long memberId);
+
+    /**
+     * createEvent - 행사 등록 (관리자 전용)
+     *
+     * @param dto 신규 행사 정보
+     * @return 생성된 행사 기본키
+     */
+    Long createEvent(LibraryEventDTO dto);
+
+    /**
+     * updateEvent - 행사 수정 (관리자 전용)
+     *
+     * @param id  수정할 행사 기본키
+     * @param dto 수정할 행사 정보
+     */
+    void updateEvent(Long id, LibraryEventDTO dto);
+
+    /**
+     * deleteEvent - 행사 삭제 (관리자 전용)
+     *
+     * @param id 삭제할 행사 기본키
+     */
+    void deleteEvent(Long id);
 }

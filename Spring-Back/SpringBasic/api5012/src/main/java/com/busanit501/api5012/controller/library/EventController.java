@@ -239,4 +239,58 @@ public class EventController {
         List<EventApplicationDTO> applications = eventService.getMyEventApplications(memberId);
         return ResponseEntity.ok(applications);
     }
+
+    // ──────────────────────────────────────────────────────
+    // POST /api/event  →  행사 등록 (관리자)
+    // ──────────────────────────────────────────────────────
+
+    @PostMapping
+    @Operation(summary = "행사 등록(관리자)", description = "관리자 전용: 새 행사를 등록합니다.")
+    public ResponseEntity<Map<String, Object>> createEvent(@RequestBody LibraryEventDTO dto) {
+        log.info("행사 등록 요청 - title: {}", dto.getTitle());
+        try {
+            Long id = eventService.createEvent(dto);
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(Map.of("result", "success", "eventId", id));
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("result", "error", "message", e.getMessage()));
+        }
+    }
+
+    // ──────────────────────────────────────────────────────
+    // PUT /api/event/{id}  →  행사 수정 (관리자)
+    // ──────────────────────────────────────────────────────
+
+    @PutMapping("/{id}")
+    @Operation(summary = "행사 수정(관리자)", description = "관리자 전용: 행사 정보를 수정합니다.")
+    public ResponseEntity<Map<String, String>> updateEvent(
+            @PathVariable Long id,
+            @RequestBody LibraryEventDTO dto) {
+        log.info("행사 수정 요청 - eventId: {}", id);
+        try {
+            eventService.updateEvent(id, dto);
+            return ResponseEntity.ok(Map.of("result", "success", "message", "행사가 수정되었습니다."));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("result", "error", "message", e.getMessage()));
+        }
+    }
+
+    // ──────────────────────────────────────────────────────
+    // DELETE /api/event/{id}  →  행사 삭제 (관리자)
+    // ──────────────────────────────────────────────────────
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "행사 삭제(관리자)", description = "관리자 전용: 행사를 삭제합니다.")
+    public ResponseEntity<Map<String, String>> deleteEvent(@PathVariable Long id) {
+        log.info("행사 삭제 요청 - eventId: {}", id);
+        try {
+            eventService.deleteEvent(id);
+            return ResponseEntity.ok(Map.of("result", "success", "message", "행사가 삭제되었습니다."));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("result", "error", "message", e.getMessage()));
+        }
+    }
 }

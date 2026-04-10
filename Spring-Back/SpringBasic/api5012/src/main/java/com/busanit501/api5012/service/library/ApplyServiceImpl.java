@@ -145,4 +145,95 @@ public class ApplyServiceImpl implements ApplyService {
         apply.reject();
         log.info("예약 신청 반려 완료 - applyId: {}", applyId);
     }
+
+    /**
+     * getAllApplies - 전체 예약 신청 목록 조회 (관리자 전용)
+     */
+    @Override
+    public Page<ApplyDTO> getAllApplies(Pageable pageable) {
+        log.info("전체 예약 신청 목록 조회 - page: {}", pageable.getPageNumber());
+        return applyRepository.findAll(pageable).map(ApplyDTO::fromEntity);
+    }
+
+    /**
+     * createApplyAsAdmin - 관리자 직접 예약 등록
+     * 중복 예약 검사를 수행한 뒤 Apply 엔티티를 저장합니다.
+     */
+    @Override
+    @Transactional
+    public Long createApplyAsAdmin(ApplyDTO dto, Long memberId) {
+        log.info("관리자 예약 등록 시작 - memberId: {}, 시설: {}, 날짜: {}",
+                memberId, dto.getFacilityType(), dto.getReserveDate());
+
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("회원을 찾을 수 없습니다. id: " + memberId));
+
+        boolean isDuplicate = applyRepository.existsByMemberIdAndReserveDateAndStatus(
+                memberId, dto.getReserveDate(), "PENDING");
+        if (isDuplicate) {
+            throw new IllegalStateException(
+                    "해당 날짜에 이미 예약 신청이 있습니다. 날짜: " + dto.getReserveDate());
+        }
+
+        Apply apply = Apply.builder()
+                .member(member)
+                .applicantName(dto.getApplicantName())
+                .facilityType(dto.getFacilityType())
+                .phone(dto.getPhone())
+                .participants(dto.getParticipants())
+                .reserveDate(dto.getReserveDate())
+                .build();
+
+        // 관리자가 등록 시 상태를 지정할 수 있음 (기본값: PENDING)
+        if (dto.getStatus() != null && !dto.getStatus().isBlank()) {
+            apply.changeStatus(dto.getStatus());
+        }
+
+        Long savedId = applyRepository.save(apply).getId();
+        log.info("관리자 예약 등록 완료 - applyId: {}", savedId);
+        return savedId;
+    }
+
+    /**
+     * updateApply - 예약 정보 수정 (관리자 전용)
+     * 정보 필드와 상태를 함께 변경합니다.
+     */
+    @Override
+    @Transactional
+    public void updateApply(Long id, ApplyDTO dto) {
+        log.info("예약 정보 수정 시작 - applyId: {}", id);
+
+        Apply apply = applyRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException(
+                        "예약 신청을 찾을 수 없습니다. id: " + id));
+
+        apply.updateInfo(
+                dto.getApplicantName(),
+                dto.getFacilityType(),
+                dto.getPhone(),
+                dto.getParticipants(),
+                dto.getReserveDate());
+
+        if (dto.getStatus() != null && !dto.getStatus().isBlank()) {
+            apply.changeStatus(dto.getStatus());
+        }
+
+        log.info("예약 정보 수정 완료 - applyId: {}", id);
+    }
+
+    /**
+     * deleteApply - 예약 삭제 (관리자 전용)
+     */
+    @Override
+    @Transactional
+    public void deleteApply(Long id) {
+        log.info("예약 삭제 시작 - applyId: {}", id);
+
+        Apply apply = applyRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException(
+                        "예약 신청을 찾을 수 없습니다. id: " + id));
+
+        applyRepository.delete(apply);
+        log.info("예약 삭제 완료 - applyId: {}", id);
+    }
 }

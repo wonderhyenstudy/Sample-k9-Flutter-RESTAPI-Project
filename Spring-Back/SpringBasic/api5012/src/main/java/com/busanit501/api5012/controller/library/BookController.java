@@ -198,6 +198,40 @@ public class BookController {
     }
 
     // ──────────────────────────────────────────────────────
+    // PATCH /api/book/{id}/status  →  도서 상태 변경 (관리자)
+    // ──────────────────────────────────────────────────────
+
+    /**
+     * changeBookStatus - 도서 상태 수동 변경 (관리자 전용)
+     *
+     * 요청 JSON: { "status": "LOST" }
+     * 허용값: AVAILABLE, RENTED, RESERVED, LOST
+     *
+     * @param id   변경할 도서 기본키
+     * @param body { "status": "LOST" }
+     * @return 200 OK + { "result": "success" }
+     */
+    @PatchMapping("/{id}/status")
+    @Operation(summary = "도서 상태 변경 (관리자)", description = "도서 상태를 수동으로 변경합니다. (AVAILABLE/RENTED/RESERVED/LOST)")
+    public ResponseEntity<Map<String, String>> changeBookStatus(
+            @PathVariable Long id,
+            @RequestBody Map<String, String> body) {
+        log.info("도서 상태 변경 요청 - bookId: {}, status: {}", id, body.get("status"));
+
+        try {
+            bookService.changeBookStatus(id, body.get("status"));
+            return ResponseEntity.ok(Map.of("result", "success", "message", "도서 상태가 변경되었습니다."));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("result", "error", "message", "유효하지 않은 상태값입니다."));
+        } catch (RuntimeException e) {
+            log.warn("도서 상태 변경 실패 - bookId: {}, 오류: {}", id, e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("result", "error", "message", e.getMessage()));
+        }
+    }
+
+    // ──────────────────────────────────────────────────────
     // DELETE /api/book/{id}  →  도서 삭제 (관리자)
     // ──────────────────────────────────────────────────────
 

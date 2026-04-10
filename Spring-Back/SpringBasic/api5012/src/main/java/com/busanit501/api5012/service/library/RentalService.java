@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * RentalService - 도서 대여 서비스 인터페이스
@@ -87,4 +88,21 @@ public interface RentalService {
      * @return 해당 상태의 대여 목록
      */
     List<RentalDTO> getMyRentalsByStatus(Long memberId, RentalStatus status);
+
+    /**
+     * getActiveRentalByBookId - 도서의 현재 활성 대여 기록 조회 (관리자용)
+     * RENTING 또는 EXTENDED 상태의 대여 기록을 반환합니다.
+     *
+     * @param bookId 조회할 도서 ID
+     * @return 활성 대여 기록 (없으면 empty)
+     */
+    Optional<RentalDTO> getActiveRentalByBookId(Long bookId);
+
+    /**
+     * getAllRentals - 전체 대여 목록 조회 (관리자용)
+     *
+     * @param pageable 페이지 정보
+     * @return 전체 대여 목록 (회원·도서 정보 포함)
+     */
+    Page<RentalDTO> getAllRentals(Pageable pageable);
 }

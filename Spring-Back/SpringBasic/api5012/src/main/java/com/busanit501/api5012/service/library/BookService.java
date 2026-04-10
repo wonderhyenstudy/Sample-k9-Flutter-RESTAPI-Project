@@ -61,6 +61,15 @@ public interface BookService {
     void updateBook(Long id, BookDTO dto);
 
     /**
+     * changeBookStatus - 도서 상태 직접 변경 (관리자용)
+     * 분실(LOST), 대여가능(AVAILABLE) 등으로 상태를 수동 변경합니다.
+     *
+     * @param id     변경할 도서 ID
+     * @param status 변경할 상태 문자열 (BookStatus enum 이름)
+     */
+    void changeBookStatus(Long id, String status);
+
+    /**
      * deleteBook - 도서 삭제 (관리자 전용)
      *
      * 도서를 시스템에서 완전히 삭제합니다.

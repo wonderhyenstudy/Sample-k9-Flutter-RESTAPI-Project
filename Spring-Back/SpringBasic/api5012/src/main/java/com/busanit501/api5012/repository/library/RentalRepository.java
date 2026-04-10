@@ -75,8 +75,23 @@ public interface RentalRepository extends JpaRepository<Rental, Long> {
      */
     @Query("SELECT r FROM Rental r " +
            "WHERE r.book.id = :bookId " +
-           "AND r.status IN ('RENTING', 'EXTENDED')")
-    Optional<Rental> findActiveRentalByBookId(@Param("bookId") Long bookId);
+           "AND r.status IN ('RENTING', 'EXTENDED') " +
+           "ORDER BY r.id DESC")
+    List<Rental> findActiveRentalsByBookId(@Param("bookId") Long bookId);
+
+    /**
+     * findActiveRentalByBookId - 도서의 현재 활성 대여 기록 조회 (최신 1건)
+     *
+     * 데이터 정합성이 깨진 경우(같은 도서에 활성 대여 2건 이상 존재) 대비용으로
+     * List 반환 메서드를 래핑하여 가장 최신(id DESC) 기록만 반환합니다.
+     *
+     * @param bookId 조회할 도서의 ID
+     * @return 가장 최근 활성 대여 기록 (없으면 Optional.empty())
+     */
+    default Optional<Rental> findActiveRentalByBookId(Long bookId) {
+        List<Rental> rentals = findActiveRentalsByBookId(bookId);
+        return rentals.isEmpty() ? Optional.empty() : Optional.of(rentals.get(0));
+    }
 
     /**
      * findOverdueRentals - 연체 대여 기록 전체 조회

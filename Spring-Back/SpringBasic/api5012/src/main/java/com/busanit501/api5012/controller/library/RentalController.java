@@ -188,6 +188,52 @@ public class RentalController {
     }
 
     // ──────────────────────────────────────────────────────
+    // GET /api/rental/all  →  전체 대여 목록 (관리자용)
+    // ──────────────────────────────────────────────────────
+
+    /**
+     * getAllRentals - 전체 대여 목록 조회 (관리자 전용)
+     *
+     * 요청 예시: GET /api/rental/all?page=0&size=50
+     *
+     * @param page 페이지 번호
+     * @param size 페이지 크기
+     * @return 200 OK + Page<RentalDTO>
+     */
+    @GetMapping("/all")
+    @Operation(summary = "전체 대여 목록 (관리자)", description = "모든 회원의 대여 기록을 반환합니다.")
+    public ResponseEntity<Page<RentalDTO>> getAllRentals(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size) {
+        log.info("관리자 - 전체 대여 목록 조회 page: {}", page);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("rentalDate").descending());
+        return ResponseEntity.ok(rentalService.getAllRentals(pageable));
+    }
+
+    // ──────────────────────────────────────────────────────
+    // GET /api/rental/active?bookId={}  →  도서의 활성 대여 기록
+    // ──────────────────────────────────────────────────────
+
+    /**
+     * getActiveRentalByBookId - 특정 도서의 현재 활성 대여 기록 조회
+     *
+     * 요청 예시: GET /api/rental/active?bookId=5
+     *
+     * @param bookId 조회할 도서 ID
+     * @return 200 OK + RentalDTO (대여 중 아니면 404)
+     */
+    @GetMapping("/active")
+    @Operation(summary = "도서 활성 대여 조회", description = "현재 대여 중인 도서의 대여 기록을 반환합니다.")
+    public ResponseEntity<Object> getActiveRentalByBookId(
+            @Parameter(description = "도서 ID") @RequestParam Long bookId) {
+        log.info("도서 활성 대여 조회 - bookId: {}", bookId);
+        return rentalService.getActiveRentalByBookId(bookId)
+                .<ResponseEntity<Object>>map(ResponseEntity::ok)
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("result", "none", "message", "현재 대여 중인 기록이 없습니다.")));
+    }
+
+    // ──────────────────────────────────────────────────────
     // GET /api/rental/status?memberId={}&status={}  →  상태별 대여 목록
     // ──────────────────────────────────────────────────────
 

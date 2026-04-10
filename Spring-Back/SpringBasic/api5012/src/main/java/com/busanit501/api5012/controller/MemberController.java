@@ -154,4 +154,39 @@ public class MemberController {
         log.info("관리자 - 전체 회원 목록 조회");
         return ResponseEntity.ok(memberLibraryService.getAllMembers());
     }
+
+    // ── PUT /api/member/admin/{id}  →  관리자 회원 수정 ─────────────────
+
+    @PutMapping(value = "/admin/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(summary = "관리자 회원 수정", description = "관리자 전용: 회원 ID 로 이름/이메일/지역/역할을 수정합니다.")
+    public ResponseEntity<Map<String, String>> adminUpdateMember(
+            @PathVariable Long id,
+            @RequestBody MemberDTO dto) {
+        log.info("관리자 회원 수정 요청 - id: {}", id);
+        try {
+            memberLibraryService.adminUpdateMember(id, dto);
+            return ResponseEntity.ok(Map.of("result", "success", "message", "회원 정보가 수정되었습니다."));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("result", "error", "message", e.getMessage()));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("result", "error", "message", e.getMessage()));
+        }
+    }
+
+    // ── DELETE /api/member/{id}  →  관리자 회원 삭제 ────────────────────
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "관리자 회원 삭제", description = "관리자 전용: 회원 ID 로 회원을 삭제합니다.")
+    public ResponseEntity<Map<String, String>> deleteMember(@PathVariable Long id) {
+        log.info("관리자 회원 삭제 요청 - id: {}", id);
+        try {
+            memberLibraryService.deleteMember(id);
+            return ResponseEntity.ok(Map.of("result", "success", "message", "회원이 삭제되었습니다."));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("result", "error", "message", e.getMessage()));
+        }
+    }
 }
