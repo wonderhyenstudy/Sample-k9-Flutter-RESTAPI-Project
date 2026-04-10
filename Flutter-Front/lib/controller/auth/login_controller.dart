@@ -1,193 +1,211 @@
 import 'dart:convert';
 
-import 'package:busanit501_flutter_workspace_251021/screen/main_screen.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
-
 
 class LoginController extends ChangeNotifier {
   final TextEditingController idController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  final FlutterSecureStorage secureStorage = const FlutterSecureStorage(); // 보안 저장소
-  // final String serverIp = "http://192.168.219.103:8080"; // 서버 주소
-  // 주의사항, 각자 아이피를 사용해야합니다. 그대로 사용하면 안됩니다.
-  // localhost 로 하면 안됩니다.
-  // 만약, 에뮬레이터로 진행을 하면, : 10.0.2.2 로 변경해서 진행해보기.
-  final String serverIp = "http://10.0.2.2:8080"; // 서버 주소 변경 필요
-  bool isLoading = false; // 로그인 로딩 상태
-  bool isLoggedIn = false; // 로그인 여부
+  final FlutterSecureStorage secureStorage = const FlutterSecureStorage();
+  final String serverIp = 'http://10.0.2.2:8080';
+
+  bool isLoading = false;
+  bool isLoggedIn = false;
+
+  // 도서관 회원 정보 (GET /api/member/me 응답)
+  bool isMemberInfoLoading = false;
+  String? memberName;
+  String? memberEmail;
+  String? memberRegion;
+  String? memberRole;
+  String? memberRegDate;
+  String? currentMid; // SecureStorage에서 읽은 mid
 
   LoginController() {
-    _checkLoginStatus(); // 생성 시 로그인 상태 확인
+    _checkLoginStatus();
   }
 
-  // 로그인 요청 및 JWT 저장
+  // ── 로그인 ────────────────────────────────────────────
   Future<void> login(BuildContext context) async {
-    String inputId = idController.text.trim();
-    String inputPw = passwordController.text.trim();
+    final inputId = idController.text.trim();
+    final inputPw = passwordController.text.trim();
 
     if (inputId.isEmpty || inputPw.isEmpty) {
-      _showDialog(context, "오류", "아이디와 비밀번호를 입력하세요.");
+      _showDialog(context, '오류', '아이디와 비밀번호를 입력하세요.');
       return;
     }
 
-    Map<String, String> loginData = {"mid": inputId, "mpw": inputPw};
+    isLoading = true;
+    notifyListeners();
 
     try {
-      isLoading = true;
-      notifyListeners(); // UI 업데이트
-
       final response = await http.post(
-        Uri.parse("$serverIp/generateToken"),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode(loginData),
+        Uri.parse('$serverIp/generateToken'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'mid': inputId, 'mpw': inputPw}),
       );
 
+      if (!context.mounted) return;
+
       if (response.statusCode == 200) {
-        final responseData = jsonDecode(response.body);
+        final data = jsonDecode(response.body);
+        final accessToken = data['accessToken'] as String;
+        final refreshToken = data['refreshToken'] as String;
+        final profileImg = data['profileImg'] ?? '';
 
-        String accessToken = responseData["accessToken"];
-        String refreshToken = responseData["refreshToken"];
-        String profileImg = responseData["profileImg"] ?? "";
+        await secureStorage.write(key: 'accessToken', value: accessToken);
+        await secureStorage.write(key: 'refreshToken', value: refreshToken);
+        await secureStorage.write(key: 'profileImg', value: profileImg);
+        await secureStorage.write(key: 'mid', value: inputId);
+        currentMid = inputId;
 
-        // JWT 토큰 보안 저장소에 저장
-        await secureStorage.write(key: "accessToken", value: accessToken);
-        await secureStorage.write(key: "refreshToken", value: refreshToken);
-        await secureStorage.write(key: "profileImg", value: profileImg);
-        await secureStorage.write(key: "mid", value: inputId);
-
-        // 도서관 회원 numeric ID 조회 후 저장
+        // 도서관 회원 ID + 상세 정보 조회
         try {
           final memberRes = await http.get(
-            Uri.parse("$serverIp/api/member/me?mid=$inputId"),
-            headers: {"Authorization": "Bearer $accessToken"},
+            Uri.parse('$serverIp/api/member/me?mid=$inputId'),
+            headers: {'Authorization': 'Bearer $accessToken'},
           );
           if (memberRes.statusCode == 200) {
-            final memberData = jsonDecode(memberRes.body);
+            final md = jsonDecode(memberRes.body);
             await secureStorage.write(
-                key: "memberId", value: memberData["id"].toString());
+                key: 'memberId', value: md['id'].toString());
+            _applyMemberData(md);
           }
         } catch (_) {}
 
         clearInputFields();
-
         isLoggedIn = true;
         notifyListeners();
 
         if (!context.mounted) return;
-        _showDialog(context, "로그인 성공", "메인 화면으로 이동합니다.");
-
-        Future.delayed(const Duration(seconds: 1), () {
-          if (!context.mounted) return;
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(builder: (context) => const MainScreen2()),
-            (Route<dynamic> route) => false,
-          );
-        });
+        Navigator.pushNamedAndRemoveUntil(context, '/main', (_) => false);
       } else {
         if (!context.mounted) return;
-        _showDialog(context, "로그인 실패", "아이디 또는 비밀번호가 잘못되었습니다.");
+        _showDialog(context, '로그인 실패', '아이디 또는 비밀번호가 잘못되었습니다.');
       }
     } catch (e) {
       if (!context.mounted) return;
-      _showDialog(context, "네트워크 오류", "오류 발생: $e");
+      _showDialog(context, '네트워크 오류', '오류 발생: $e');
     } finally {
       isLoading = false;
       notifyListeners();
     }
   }
-// 로그아웃 확인 다이얼로그
+
+  // ── 회원 정보 로드 (마이페이지 진입 시 호출) ──────────────
+  Future<void> loadMemberInfo() async {
+    final mid = await secureStorage.read(key: 'mid');
+    final token = await secureStorage.read(key: 'accessToken');
+    if (mid == null || token == null) return;
+
+    currentMid = mid;
+    isMemberInfoLoading = true;
+    notifyListeners();
+
+    try {
+      final res = await http.get(
+        Uri.parse('$serverIp/api/member/me?mid=$mid'),
+        headers: {'Authorization': 'Bearer $token'},
+      );
+      if (res.statusCode == 200) {
+        _applyMemberData(jsonDecode(res.body));
+      }
+    } catch (_) {
+    } finally {
+      isMemberInfoLoading = false;
+      notifyListeners();
+    }
+  }
+
+  void _applyMemberData(Map<String, dynamic> md) {
+    memberName = md['mname'];
+    memberEmail = md['email'];
+    memberRegion = md['region'];
+    memberRole = md['role']?.toString();
+    memberRegDate = md['regDate'] != null
+        ? (md['regDate'] as String).substring(0, 10)
+        : null;
+  }
+
+  // ── 로그아웃 ──────────────────────────────────────────
   Future<void> showLogoutDialog(BuildContext context) async {
     return showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("로그아웃 확인"),
-          content: const Text("정말 로그아웃 하시겠습니까?"),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(), // 취소 버튼
-              child: const Text("취소"),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // 다이얼로그 닫기
-                logout(context); // 로그아웃 실행
-              },
-              child: const Text("확인", style: TextStyle(color: Colors.red)),
-            ),
-          ],
-        );
-      },
+      builder: (ctx) => AlertDialog(
+        title: const Text('로그아웃 확인'),
+        content: const Text('정말 로그아웃 하시겠습니까?'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: const Text('취소')),
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              logout(context);
+            },
+            child: const Text('확인', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
     );
   }
 
-  // 로그아웃 기능 (저장된 로그인 정보 삭제)
   Future<void> logout(BuildContext context) async {
-    await secureStorage.delete(key: "accessToken");
-    await secureStorage.delete(key: "refreshToken");
-    await secureStorage.delete(key: "profileImg");
-    await secureStorage.delete(key: "mid");
-    await secureStorage.delete(key: "memberId");
+    await secureStorage.delete(key: 'accessToken');
+    await secureStorage.delete(key: 'refreshToken');
+    await secureStorage.delete(key: 'profileImg');
+    await secureStorage.delete(key: 'mid');
+    await secureStorage.delete(key: 'memberId');
 
     isLoggedIn = false;
+    currentMid = null;
+    memberName = null;
+    memberEmail = null;
+    memberRegion = null;
+    memberRole = null;
+    memberRegDate = null;
     notifyListeners();
 
     if (!context.mounted) return;
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => const MainScreen2()),
-      (Route<dynamic> route) => false,
-    );
+    Navigator.pushNamedAndRemoveUntil(context, '/main', (_) => false);
   }
 
-  // 입력 필드 초기화
+  // ── 앱 시작 시 로그인 상태 복원 ──────────────────────────
+  Future<void> _checkLoginStatus() async {
+    final mid = await secureStorage.read(key: 'mid');
+    currentMid = mid;
+    isLoggedIn = mid != null;
+    notifyListeners();
+  }
+
   void clearInputFields() {
     idController.clear();
     passwordController.clear();
     notifyListeners();
   }
 
-  // 로그인 상태 확인 (앱 실행 시 호출)
-  Future<void> _checkLoginStatus() async {
-    String? mid = await secureStorage.read(key: "mid");
-    isLoggedIn = mid != null;
-    notifyListeners();
-  }
+  Future<String?> getAccessToken() async =>
+      secureStorage.read(key: 'accessToken');
 
-  // 보안 저장소에서 JWT 토큰 가져오기
-  Future<String?> getAccessToken() async {
-    return await secureStorage.read(key: "accessToken");
-  }
+  Future<String?> getUserId() async => secureStorage.read(key: 'mid');
 
-  // 보안 저장소에서 로그인한 사용자 ID 가져오기
-  Future<String?> getUserId() async {
-    return await secureStorage.read(key: "mid"); // 저장된 ID 불러오기
-  }
-
-  // 다이얼로그 표시 함수
   void _showDialog(BuildContext context, String title, String message) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(title),
-          content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text("확인"),
-            ),
-          ],
-        );
-      },
+      builder: (ctx) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: const Text('확인')),
+        ],
+      ),
     );
   }
-  // ✅ --- dispose 함수 추가 ---
+
   @override
   void dispose() {
     idController.dispose();
